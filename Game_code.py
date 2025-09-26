@@ -1,72 +1,121 @@
 import random
 
-class Pokemon():
-    def __init__(self,name,level,hp, max_hp,atk,defens,typex):
+class Wizard():
+    def __init__(self,name,magical_level, max_hp,atk,defens):
         self.name = name
-        self.level = level
-        self.hp = hp
+        self.magical_level = magical_level
         self.max_hp = max_hp
+        self.hp = max_hp
         self.atk = atk
         self.defens = defens
-        self.typex = typex
-        self.tamed = False
+        self.faculty = None
 
-    def damaged(self, damage):
-        self.hp = self.hp - damage
-        return self.hp
-
-    def attack(self):
-        pass
-
+    def attack(self, oponent):
+        oponent.hp = oponent.hp - self.atk
+        return oponent.hp
 
     def healing(self):
-        self.hp = self.max_hp
+        healing_hp = self.hp + 30
+        if healing_hp > self.max_hp:
+            self.hp = self.max_hp
+        else:
+            self.hp = self.hp + 30
         return self.hp
 
-    def speak(self):
-        pass
 
 
-class Trainer():
-    def __init__(self, name):
-        self.name = name
-        self.pokemons = []
-        self.active_pokemon = None
+class Harry_Potter(Wizard):
+    def __init__(self):
+        magical_level = 4
+        super().__init__(
+            name = "Гарри Поттер",
+            magical_level= magical_level,
+            max_hp = 50*magical_level,
+            atk=20*magical_level,
+            defens = 5*magical_level)
 
-    def catch_pokemon(self, pokemon):
-        pass
+class Wolan_De_Mort(Wizard):
+    def __init__(self):
+        magical_level = 6
+        super().__init__(
+            name = "Волан Де Морт",
+            magical_level = magical_level,
+            max_hp = 50*magical_level,
+            atk=20*magical_level,
+            defens = 5*magical_level)
 
-    def attack_oponent(self):
-        print("Выберите покемона:", self.pokemons)
-        pokemon_chaise_index = int(input("Введите номер в списке: "))
-        choised_pokemon = self.pokemons[pokemon_chaise_index]
+class Albus_Daambldor(Wizard):
+    def __init__(self):
+        magical_level = 7
+        super().__init__(
+            name = "Альбус Дамблдор",
+            magical_level= magical_level,
+            max_hp = 50*magical_level,
+            atk=20*magical_level,
+            defens = 5*magical_level)
 
-    def health_pokemons(self):
-        for pokemon in self.pokemons:
-            pokemon.healing
+class Sevirus_Sneg(Wizard):
+    def __init__(self):
+        magical_level = 5
+        super().__init__(
+            name = "Севиус Снег",
+            magical_level= magical_level,
+            max_hp = 50*magical_level,
+            atk=20*magical_level,
+            defens = 5*magical_level)
 
-class Pikachu(Pokemon):
-    def __init__(self, level = 5):
-        super().__init__("Pikachu", level,
-                         hp=10*level,
-                         max_hp = 10*level,
-                         atk=3*level,
-                         defens = 2*level,
-                         typex = "Electric")
 
-    def speak(self):
-        print("Pika-Pika!")
+#all_wizards_name_list = [harry]
+#all_wizards_class_list = [Harry_Potter,Wolan_De_Mort,Albus_Daambldor,Sevirus_Sneg]
+# def create_all_wizards_list(names,classes):
+#     all_wizards_list = []
+#     for i in range(len(names)):
+#         name = names[i]
+#         clas = classes[i]
+#         all_wizards_list.append()
 
-def wild_battle(trainer, wild_trainer):
 
-    print("Попытатся атаковать (D) или попытатся поймать (F)")
-    deist = str(input("Выберите действие: "))
-    if deist == 'F' or 'f':
-        catch_chanse = (1 - wild_pokemon.level/pokemon.level)*0,5
+harry_potter = Harry_Potter()
+wolan_de_mort = Wolan_De_Mort()
 
+all_wizards_list = [harry_potter,wolan_de_mort]
+
+
+
+
+def new_player_create():
+    player_name = str(input("Создание игрока, ввидите имя: "))
+    Player = Wizard(player_name,4,600,50,45)
+    return Player
+
+def battle(player):
+    oponent = all_wizards_list[random.randint(0,(len(all_wizards_list))-1)]
+    print(oponent.name)
+
+    while oponent.hp > 0:
+        print("Выберите действие:")
+        action = str(input("Атаковать - A\n"
+                           "Защищатся - D\n"
+                           "Лечится - H: "))
+        if action =="A":
+            player.attack(oponent)
+            print(f"Вы нанесли врагу {player.atk} урона, у врага осталось {oponent.hp} HP")
+
+        elif action == "H":
+            player.healing()
+            print(f"Вы вылечились, HP сейчас: {player.hp}")
+    print(f"{player.name}, победил!")
 
 
 def main():
-    player = Trainer("Тест")
-    starter = random.choise([Pikachu(),])
-    player.catch_pokemon(starter)
+    print("Приветствуем вас в мире магии!")
+    Main_Player = new_player_create()
+    while True:
+        select_test = str(input("Хотите сразится, или выйти из игры (A - сражение, Q - выход):"))
+        if select_test == "A":
+            battle(Main_Player)
+        elif select_test == "Q":
+            break
+
+if __name__ == '__main__':
+    main()
