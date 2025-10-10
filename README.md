@@ -1,5 +1,5 @@
-# Pokemons_game_rep
- This repository will be used to develop a Pokémon game with OOP in Python. 
- - In the game, you can catch wild Pokémon
- - battle wild Pokémon
- - restore life to your Pokémon
+# DnDs game rep
+ This repository will be used to develop a Dundgeons and Dragons like game with OOP in Python. 
+Что сделать в ближайщее время:
+ - Поменять классы индивидуальных волшебников на существ
+ - Добавить еще классы игрока, а также врагов
