@@ -1,7 +1,84 @@
 import random
 import time
-class Wizard():
-    def __init__(self,name,magical_level, max_hp,atk,defens):
+
+class Player():
+    def __init__(self,level,name,magical_level, max_hp,atk,defens):
+        self.level = level
+        self.name = name
+        self.magical_level = magical_level
+        self.max_hp = max_hp
+        self.hp = max_hp
+        self.atk = atk
+        self.defens = defens
+        self.inventory = {}
+
+    def attack(self, oponent, defens_bool, coef):
+        if defens_bool != 0:
+            damage = self.atk-oponent.defens*coef
+            oponent.hp = oponent.hp - damage
+        else:
+            damage = self.atk*coef
+            oponent.hp = oponent.hp - damage
+        return [round(oponent.hp, 2), damage]
+
+    def healing(self):
+        healing_hp = self.hp + 30
+        if healing_hp > self.max_hp:
+            self.hp = self.max_hp
+        else:
+            self.hp = self.hp + 30
+        return round(self.hp, 2)
+
+    def defensing(self):
+        return 1
+
+class Warrior(Player):
+    def __init__(self, level, name):
+        class_info = "Воин"
+        super().__init__(
+            level=level,
+            name=f"Воин {name}",
+            magical_level=level,
+            max_hp=70 * level,
+            atk=25 * level,
+            defens=10 * level)
+
+class Wizard(Player):
+    def __init__(self, level, name):
+        class_info = "Волшебник"
+        super().__init__(
+            level=level,
+            name=f"Волшебник {name}",
+            magical_level=level,
+            max_hp=60 * level,
+            atk=17 * level,
+            defens=5 * level)
+
+class Monk(Player):
+    def __init__(self, level, name):
+        class_info = "Монах "
+        super().__init__(
+            level=level,
+            name=f"Монах {name}",
+            magical_level=level,
+            max_hp=50 * level,
+            atk=40 * level,
+            defens=6 * level)
+
+class Paladin(Player):
+    def __init__(self, level, name):
+        class_info = "Паладин"
+        super().__init__(
+            level=level,
+            name=f"Паладин {name}",
+            magical_level=level,
+            max_hp=80 * level,
+            atk=30 * level,
+            defens=18 * level)
+
+class Monster():
+    def __init__(self,level,name,magical_level, max_hp,atk,defens):
+        self.level = level
         self.name = name
         self.magical_level = magical_level
         self.max_hp = max_hp
@@ -31,54 +108,94 @@ class Wizard():
 
 
 
-class Harry_Potter(Wizard):
-    def __init__(self):
-        magical_level = 4
+class Sceleton(Monster):
+    def __init__(self, level):
+        class_info = "Скелет"
         super().__init__(
-            name = "Гарри Поттер",
-            magical_level= magical_level,
-            max_hp = 70*magical_level,
-            atk=20*magical_level,
-            defens = 10*magical_level)
+            level=level,
+            name=f"Скелет ({level})",
+            magical_level=level,
+            max_hp=55*level,
+            atk=16*level,
+            defens=5*level)
 
-class Wolan_De_Mort(Wizard):
-    def __init__(self):
-        magical_level = 6
+class Dragon(Monster):
+    def __init__(self, level):
+        class_info = "Дракон"
         super().__init__(
-            name = "Волан Де Морт",
-            magical_level = magical_level,
-            max_hp = 70*magical_level,
-            atk=20*magical_level,
-            defens = 10*magical_level)
+            level=level,
+            name=f"Дракон ({level})",
+            magical_level=level,
+            max_hp=350*level,
+            atk=61*level,
+            defens=32*level)
 
-class Albus_Daambldor(Wizard):
-    def __init__(self):
-        magical_level = 7
+class Cultist(Monster):
+    def __init__(self, level):
+        class_info = "Культист"
         super().__init__(
-            name = "Альбус Дамблдор",
-            magical_level= magical_level,
-            max_hp = 70*magical_level,
-            atk=20*magical_level,
-            defens = 10*magical_level)
+            level=level,
+            name=f"Культист ({level})",
+            magical_level=level,
+            max_hp=78*level,
+            atk=30*level,
+            defens=0*level)
 
-class Sevirus_Sneg(Wizard):
-    def __init__(self):
-        magical_level = 5
+class Drow(Monster):
+    def __init__(self, level):
+        class_info = "Дроу"
         super().__init__(
-            name = "Севирус Снег",
-            magical_level= magical_level,
-            max_hp = 70*magical_level,
-            atk=20*magical_level,
-            defens = 10*magical_level)
+            name=f"Дроу ({level})",
+            level=level,
+            magical_level=level,
+            max_hp=85*level,
+            atk=18*level,
+            defens=30*level)
+
+class Smoke_Mephit(Monster):
+    def __init__(self, level):
+        class_info = "Дымный мефит"
+        super().__init__(
+            name=f"Дымный мефит ({level})",
+            level=level,
+            magical_level=level,
+            max_hp=100*level,
+            atk=24*level,
+            defens=18*level)
+
+class Babau(Monster):
+    def __init__(self, level):
+        class_info = "Бабау"
+        super().__init__(
+            name=f"Бабау ({level})",
+            level=level,
+            magical_level= level,
+            max_hp=70*level,
+            atk=20*level,
+            defens=10*level)
+
+class Bone_Naga_Spirit(Monster):
+    def __init__(self, level):
+        class_info = "Костяной Нага Дух"
+        super().__init__(
+            name=f"Костяной Нага Дух ({level})",
+            level=level,
+            magical_level=level,
+            max_hp=70*level,
+            atk=20*level,
+            defens=10*level)
+
+sceleton = Sceleton(1)
+cultist = Cultist(1)
+babau = Babau(1)
+bone_naga_spirit = Bone_Naga_Spirit(1)
+drow = Drow(1)
+smoke_merhit = Smoke_Mephit(1)
+dragon = Dragon(1)
 
 
-harry_potter = Harry_Potter()
-wolan_de_mort = Wolan_De_Mort()
-albus_dambldor = Albus_Daambldor()
-sevirus_sneg = Sevirus_Sneg()
-
-all_wizards_list = [harry_potter,wolan_de_mort,albus_dambldor,sevirus_sneg]
-
+all_monsters_list = [sceleton, cultist, babau, bone_naga_spirit, dragon,
+                     drow, smoke_merhit]
 
 def kubik(kubiks_edges = 25):
     kubik_val = random.randint(1,kubiks_edges)
@@ -87,13 +204,24 @@ def kubik(kubiks_edges = 25):
 
 def new_player_create():
     player_name = str(input("Создание игрока, ввидите имя: "))
-    Player = Wizard(player_name,4,280,80,40)
+    choise_class = int(input("Выберите класс: \n- Воин (1)\n- Волшебник (2)\n- Монах (3)"
+                             "\n- Паладин (4):"))
+    if choise_class == 1:
+        Player = Warrior(1, player_name)
+    elif choise_class == 2:
+        Player = Wizard(1, player_name)
+    elif choise_class == 3:
+        Player = Monk(1, player_name)
+    elif choise_class == 4:
+        Player = Paladin(1, player_name)
+    else:
+        Player = Warrior(1, player_name)
     return Player
 
 def battle(player):
     player_defensing = 0
     oponent_defensing = 0
-    oponent = all_wizards_list[random.randint(0,(len(all_wizards_list))-1)]
+    oponent = all_monsters_list[random.randint(0,(len(all_monsters_list))-1)]
     print(f"Ваш опонент: {oponent.name}")
     time.sleep(1)
 
@@ -120,12 +248,12 @@ def battle(player):
 
         print("_____________________")
 
-        if player.hp < 0:
+        if player.hp <= 0:
             print(f"{oponent.name}, победил!")
             print("_____________________")
             break
 
-        elif oponent.hp < 0:
+        elif oponent.hp <= 0:
             print(f"{player.name}, победил!")
             print("_____________________")
             break
