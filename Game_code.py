@@ -2,7 +2,7 @@ import random
 import time
 
 class Player():
-    def __init__(self,level,name,magical_level, max_hp,atk,defens):
+    def __init__(self, level, name, magical_level, max_hp, atk, defens, money):
         self.level = level
         self.name = name
         self.magical_level = magical_level
@@ -11,6 +11,7 @@ class Player():
         self.atk = atk
         self.defens = defens
         self.inventory = {}
+        self.money = money
 
     def attack(self, oponent, defens_bool, coef):
         if defens_bool != 0:
@@ -41,7 +42,8 @@ class Warrior(Player):
             magical_level=level,
             max_hp=70 * level,
             atk=25 * level,
-            defens=10 * level)
+            defens=10 * level,
+            money=15)
 
 class Wizard(Player):
     def __init__(self, level, name):
@@ -52,7 +54,8 @@ class Wizard(Player):
             magical_level=level,
             max_hp=60 * level,
             atk=17 * level,
-            defens=5 * level)
+            defens=5 * level,
+            money=12)
 
 class Monk(Player):
     def __init__(self, level, name):
@@ -63,7 +66,8 @@ class Monk(Player):
             magical_level=level,
             max_hp=50 * level,
             atk=40 * level,
-            defens=6 * level)
+            defens=6 * level,
+            money=8)
 
 class Paladin(Player):
     def __init__(self, level, name):
@@ -74,7 +78,39 @@ class Paladin(Player):
             magical_level=level,
             max_hp=80 * level,
             atk=30 * level,
-            defens=18 * level)
+            defens=18 * level,
+            money=30)
+
+class Shop():
+    def __init__(self):
+        self.showcase = {"зелье": 20, "хлеб": 2,"гримуар": 50}
+
+    def show_showcase(self):
+        for key, value in self.showcase.items():
+            print(f"Ветрина: {key} = {value}", end=" | ")
+
+    def sell(self, player, purchases):
+        expenses = 0
+        new_items = {}
+        player_money = player.money
+        for i in purchases:
+            product = i
+            if product in self.showcase:
+                price = int(self.showcase[str(product)])
+                expenses = expenses + price
+                new_items.update({product: price})
+            else:
+                print("Shop.NO_PURCH_DATA")
+        player.money = player_money-expenses
+        player.inventory.update(new_items)
+        return [player.money, player.inventory]
+    
+    def buy(self):
+        pass
+
+
+
+
 
 class Monster():
     def __init__(self,level,name,magical_level, max_hp,atk,defens):
@@ -110,7 +146,8 @@ class Monster():
 
 class Sceleton(Monster):
     def __init__(self, level):
-        class_info = "Скелет"
+        loot = {}
+        monster_info = "Скелет"
         super().__init__(
             level=level,
             name=f"Скелет ({level})",
@@ -121,7 +158,8 @@ class Sceleton(Monster):
 
 class Dragon(Monster):
     def __init__(self, level):
-        class_info = "Дракон"
+        loot = {}
+        monster_info = "Дракон"
         super().__init__(
             level=level,
             name=f"Дракон ({level})",
@@ -132,7 +170,8 @@ class Dragon(Monster):
 
 class Cultist(Monster):
     def __init__(self, level):
-        class_info = "Культист"
+        loot = {}
+        monster_info = "Культист"
         super().__init__(
             level=level,
             name=f"Культист ({level})",
@@ -143,7 +182,8 @@ class Cultist(Monster):
 
 class Drow(Monster):
     def __init__(self, level):
-        class_info = "Дроу"
+        loot = {}
+        monster_info = "Дроу"
         super().__init__(
             name=f"Дроу ({level})",
             level=level,
@@ -154,7 +194,8 @@ class Drow(Monster):
 
 class Smoke_Mephit(Monster):
     def __init__(self, level):
-        class_info = "Дымный мефит"
+        loot = {}
+        monster_info = "Дымный мефит"
         super().__init__(
             name=f"Дымный мефит ({level})",
             level=level,
@@ -165,7 +206,8 @@ class Smoke_Mephit(Monster):
 
 class Babau(Monster):
     def __init__(self, level):
-        class_info = "Бабау"
+        loot = {}
+        monster_info = "Бабау"
         super().__init__(
             name=f"Бабау ({level})",
             level=level,
@@ -176,7 +218,8 @@ class Babau(Monster):
 
 class Bone_Naga_Spirit(Monster):
     def __init__(self, level):
-        class_info = "Костяной Нага Дух"
+        loot = {}
+        monster_info = "Костяной Нага Дух"
         super().__init__(
             name=f"Костяной Нага Дух ({level})",
             level=level,
@@ -185,6 +228,9 @@ class Bone_Naga_Spirit(Monster):
             atk=20*level,
             defens=10*level)
 
+
+
+
 sceleton = Sceleton(1)
 cultist = Cultist(1)
 babau = Babau(1)
@@ -192,6 +238,8 @@ bone_naga_spirit = Bone_Naga_Spirit(1)
 drow = Drow(1)
 smoke_merhit = Smoke_Mephit(1)
 dragon = Dragon(1)
+# __________
+shop = Shop()
 
 
 all_monsters_list = [sceleton, cultist, babau, bone_naga_spirit, dragon,
@@ -295,17 +343,59 @@ def battle(player):
             print(f"{player.name}, победил! \n_____________________")
             break
 
-
-
-def main():
-    print("Приветствуем вас в мире меча и магии!")
-    Main_Player = new_player_create()
+def shoping(player,shop):
     while True:
-        select_test = str(input("Хотите сразится, или выйти из игры (A - сражение, Q - выход):"))
-        if select_test == "A":
-            battle(Main_Player)
-        elif select_test == "Q":
+        shop_select = str(input("Приветствуем в магазине.\n"
+              "B - Купить\n"
+              "S - продать\n"
+              "Q - Вернуться\n"
+              ">"))
+        if shop_select == "B":
+            purchases_list=[]
+            print(f"Что бы вы хотели приобрести?")
+            shop.show_showcase()
+            while True:
+                purchases_select = str(input("(Введите название или выйдете - Q) >"))
+                if purchases_select != "Q":
+                    purchases_list.append(purchases_select)
+                else:
+                    if purchases_list != []:
+                        sell_data = shop.sell(player,purchases_list)
+                        print(f"Монеты игрока: {sell_data[0]}, инвентарь: {sell_data[0]}")
+                    else:
+                        pass
+                    break
+        elif shop_select == "S":
+            pass
+        elif shop_select == "Q":
             break
+        else:
+            pass
+
+
+
+
+def main(start):
+
+    if start == 1:
+        print("Приветствуем вас в мире меча и магии!")
+        main_Player = new_player_create()
+        start=0
+    while True:
+        main_select = str(input("Хотите сразится, или выйти из игры \n"
+                                "A - Cражение\n"
+                                "S - Магазин\n"
+                                "Q - Выход\n"
+                                ">"))
+        if main_select == "A":
+            battle(main_Player)
+        elif main_select == "S":
+            shoping(main_Player, shop)
+        elif main_select == "Q":
+            break
+        else:
+            pass
 
 if __name__ == '__main__':
-    main()
+    start=1
+    main(start)
