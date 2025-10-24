@@ -104,7 +104,7 @@ class Shop():
         player.money = player_money-expenses
         player.inventory.update(new_items)
         return [player.money, player.inventory]
-    
+
     def buy(self):
         pass
 
