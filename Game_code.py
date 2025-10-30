@@ -93,28 +93,45 @@ class Paladin(Player):
 
 class Shop():
     def __init__(self):
-        self.showcase = {"зелье": 20, "хлеб": 2,"гримуар": 50}
+        self.showcase = {"зелье": {"стоимость": 20,"описание": "Восстанавливает 30 HP", 'type': 'heal_p_s'},
+                         "хлеб": {"стоимость": 2,"описание": "Восстанавливает 3 HP"},
+                         "гримуар": {"стоимость": 50,"описание": "Добавляет 20 урона за ход", 'type': 'damage_g_sr'}}
 
     def show_showcase(self):
         print("Ветрина: ")
         for key, value in self.showcase.items():
-            print(f"| {key} = {value}")
+            print(f"| {key.upper()} |")
+            for v_key, v_value in value.items():
+                print(f"| {v_key} - {v_value}")
+            print("|_________________________________________|")
 
-    def sell(self, player, purchases):
+    def sell(self, player, purchases) -> None or list:
         expenses = 0
         new_items = {}
         player_money = player.money
         for i in purchases:
             product = i
             if product in self.showcase:
-                price = int(self.showcase[str(product)])
+                price = int(self.showcase[str(product)]["стоимость"])*purchases[i]
+                count = purchases[i]
                 expenses = expenses + price
-                new_items.update({product: price})
+                new_items.update({product: count})
             else:
                 print("Shop.NO_PURCH_DATA")
-        player.money = player_money-expenses
-        player.inventory.update(new_items)
-        return [player.money, player.inventory]
+        if expenses > player_money:
+            print("У вас не хватает монет")
+            return None
+        else:
+            for i in new_items:
+                item = i
+                if item in player.inventory:
+                    all_count = new_items[item] + player.inventory[item]
+                    player.inventory.update({item: all_count})
+                else:
+                    count = new_items[item]
+                    player.inventory.update({item: count})
+            player.money = player_money-expenses
+            return [player.money, player.inventory]
 
     def buy(self):
         pass
@@ -312,7 +329,7 @@ def kubik(kubiks_edges = 25):
 def new_player_create():
     player_name = str(input("Создание игрока, ввидите имя: "))
     choise_class = int(input("Выберите класс: \n- Воин (1)\n- Волшебник (2)\n- Монах (3)"
-                             "\n- Паладин (4)\n >"))
+                             "\n- Паладин (4)\n> "))
     if choise_class == 1:
         Player = Warrior(1, player_name)
     elif choise_class == 2:
@@ -371,13 +388,11 @@ def battle(player):
         time.sleep(1)
 
         player_defensing = 0
-        print("Выберите действие:")
+        print("\nВыберите действие:")
         action = str(input("Атаковать - A\n"
                            "Защищатся - D\n"
-                           "Лечится - H: "))
-
-        print("_____________________")
-
+                           "Лечится - H\n"
+                           "> \n"))
 
         if action =="A":
             player_coef = kubik()
@@ -391,12 +406,11 @@ def battle(player):
 
         elif action == "H":
             player.healing()
-            print(f"Вы вылечились, HP сейчас: {player.hp}")
+            print(f"Вы вылечились, HP сейчас: {player.hp}\n")
 
-        print("_____________________")
 
         if player.hp < 0:
-            print(f"{oponent.name}, победил! \n_____________________")
+            print(f"{oponent.name}, победил! \n")
             break
 
         elif oponent.hp < 0:
@@ -407,33 +421,43 @@ def battle(player):
 
 def shoping(player,shop):
     while True:
-        shop_select = str(input("Приветствуем в магазине.\n"
+        shop_select = str(input("\n_____________________"
+              "\nПриветствуем в магазине.\n"
               "B - Купить\n"
               "S - продать\n"
               "Q - Вернуться\n"
               ">"))
-        if shop_select == "B":
-            purchases_list=[]
-            print(f"Что бы вы хотели приобрести?")
+        up_shop_select = shop_select.upper()
+        if up_shop_select == "B":
+            purchases_dict={}
+            print(f"\nЧто бы вы хотели приобрести?")
             print(f"Монеты: {player.money}")
             shop.show_showcase()
             while True:
-                purchases_select = str(input("(Введите название или выйдете - Q) >"))
+                purchases_select = str(input(f"Введите название или выйдете - Q (покупка завершится \n> "))
                 if purchases_select != "Q":
-                    purchases_list.append(purchases_select)
+                    if purchases_select in purchases_dict:
+                        purchases_dict[purchases_select] = purchases_dict[purchases_select] + 1
+                    else:
+                        purchases_dict.update({purchases_select: 1})
                 else:
-                    if purchases_list != []:
-                        sell_data = shop.sell(player,purchases_list)
-                        print(f"Монеты игрока: {sell_data[0]}, инвентарь: {sell_data[1]}")
+                    if purchases_dict != {}:
+                        sell_data = shop.sell(player,purchases_dict)
+                        if sell_data != None:
+                            print(f"\nМонеты игрока: {sell_data[0]}, инвентарь: {sell_data[1]}")
+                        else:
+                            pass
                     else:
                         pass
                     break
-        elif shop_select == "S":
+        elif up_shop_select == "S":
             pass
-        elif shop_select == "Q":
+        elif up_shop_select == "Q":
             break
         else:
             pass
+
+
 
 
 def main(start):
@@ -443,22 +467,23 @@ def main(start):
         main_Player = new_player_create()
         start=0
     while True:
-        main_select = str(input("Хотите сразится, или выйти из игры \n"
+        main_select = str(input("\nХотите сразится, или выйти из игры \n"
                                 "A - Cражение\n"
                                 "S - Магазин\n"
                                 "I - Инвентарь\n"
                                 "Q - Выход\n"
-                                ">"))
-        if main_select == "A":
+                                "> "))
+        up_main_select = main_select.upper()
+        if up_main_select == "A":
             if main_Player.hp <= 0:
                 print("Ваше здоровье низкое, вы не можете вступить в бой.")
             else:
                 battle(main_Player)
-        elif main_select == "S":
+        elif up_main_select == "S":
             shoping(main_Player, shop)
-        elif main_select == "I":
+        elif up_main_select == "I":
             main_Player.see_inventory()
-        elif main_select == "Q":
+        elif up_main_select == "Q":
             break
         else:
             pass
