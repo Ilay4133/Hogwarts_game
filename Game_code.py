@@ -1,5 +1,6 @@
 import random
 import time
+from tqdm import tqdm
 
 class Player():
     def __init__(self, level, name, magical_level, max_hp, atk, defens, money):
@@ -43,6 +44,14 @@ class Player():
             print(f"{item}: {self.inventory[item]}")
         print(f"Монеты: {self.money}")
 
+    def campfiring(self, campfire_time = 10) -> None:
+        print(f"Вы у костра, подождите {campfire_time} секунд чтобы восстановить здоровье")
+        for i in tqdm(range(100)):
+            time.sleep(campfire_time/100)
+        print("Вы посидели у костра, ваше здоровье восстановилось")
+        self.hp = self.max_hp
+        return None
+
 class Warrior(Player):
     def __init__(self, level, name):
         class_info = "Воин"
@@ -53,7 +62,7 @@ class Warrior(Player):
             max_hp=70 * level,
             atk=25 * level,
             defens=10 * level,
-            money=15)
+            money=35)
 
 class Wizard(Player):
     def __init__(self, level, name):
@@ -65,7 +74,7 @@ class Wizard(Player):
             max_hp=60 * level,
             atk=17 * level,
             defens=5 * level,
-            money=12)
+            money=24)
 
 class Monk(Player):
     def __init__(self, level, name):
@@ -77,7 +86,7 @@ class Monk(Player):
             max_hp=50 * level,
             atk=40 * level,
             defens=6 * level,
-            money=8)
+            money=18)
 
 class Paladin(Player):
     def __init__(self, level, name):
@@ -89,20 +98,24 @@ class Paladin(Player):
             max_hp=80 * level,
             atk=30 * level,
             defens=18 * level,
-            money=30)
+            money=40)
 
 class Shop():
     def __init__(self):
         self.showcase = {"зелье": {"стоимость": 20,"описание": "Восстанавливает 30 HP", 'type': 'heal_p_s'},
                          "хлеб": {"стоимость": 2,"описание": "Восстанавливает 3 HP"},
-                         "гримуар": {"стоимость": 50,"описание": "Добавляет 20 урона за ход", 'type': 'damage_g_sr'}}
+                         "гримуар": {"стоимость": 50,"описание": "Добавляет 20 урона на ход", 'type': 'damage_g_sr'},
+                         "мифическое яблоко": {"стоимость": 999,"описание": "Увеличивает уровень игрока на 20 единиц", 'type': 'lvl_up_20'}}
 
     def show_showcase(self):
         print("Ветрина: ")
         for key, value in self.showcase.items():
             print(f"| {key.upper()} |")
             for v_key, v_value in value.items():
-                print(f"| {v_key} - {v_value}")
+                if v_key != "type":
+                    print(f"| {v_key} - {v_value}")
+                else:
+                    pass
             print("|_________________________________________|")
 
     def sell(self, player, purchases) -> None or list:
@@ -117,7 +130,7 @@ class Shop():
                 expenses = expenses + price
                 new_items.update({product: count})
             else:
-                print("Shop.NO_PURCH_DATA")
+                print("Shop.NO_PURCHASE_DATA")
         if expenses > player_money:
             print("У вас не хватает монет")
             return None
@@ -125,15 +138,18 @@ class Shop():
             for i in new_items:
                 item = i
                 if item in player.inventory:
-                    all_count = new_items[item] + player.inventory[item]
-                    player.inventory.update({item: all_count})
+                    all_count = new_items[item] + player.inventory[item]["количество"]
+                    buying_item_dict = {"количество": all_count} | self.showcase[item]
+
                 else:
                     count = new_items[item]
-                    player.inventory.update({item: count})
+                    buying_item_dict = {"количество": count} | self.showcase[item]
+                buying_item_dict["стоимость"] = self.showcase[item]["стоимость"] // 2
+                player.inventory.update({item: buying_item_dict})
             player.money = player_money-expenses
             return [player.money, player.inventory]
 
-    def buy(self):
+    def buy(self, player, sales_list):
         pass
 
 
@@ -152,18 +168,13 @@ class Monster():
         self.loot = loot
 
     def attack(self, oponent, defens_bool, coef):
+        print("Враг атакует")
         if defens_bool != 0:
-            damage = self.atk*coef-oponent.defens
-            if damage<0:
-                oponent.hp = oponent.hp + damage
-                return [round(oponent.hp, 2), -(damage)]
-            else:
-                oponent.hp = oponent.hp - damage
-                return [round(oponent.hp, 2), damage]
+                return [round(oponent.hp, 2), "Игрок парировал атаку", 1]
         else:
             damage = self.atk*coef
             oponent.hp = oponent.hp - damage
-            return [round(oponent.hp, 2), damage]
+            return [round(oponent.hp, 2), damage, 0]
 
     def healing(self):
         healing_hp = self.hp + 30
@@ -204,16 +215,13 @@ class Monster():
                     else:
                         pass
             else:
-                if probil >= chanse:
+                if probil <= chanse:
                     loot_count = 1
                     got_loot.update({item: loot_count})
                 else:
                     pass
         player.inventory.update(got_loot)
         return [got_loot, player.inventory, money_count]
-
-
-
 
 
 
@@ -227,9 +235,7 @@ class Sceleton(Monster):
             max_hp=1*level,
             atk=16*level,
             defens=5*level,
-            loot = {"монеты": [10, 0.7], "кости": [40, 1], "череп": [1, 0.3]})
-
-
+            loot={"монеты": [10, 0.7], "кости": [40, 1], "череп": [1, 0.3]})
 
 class Dragon(Monster):
     def __init__(self, level):
@@ -241,7 +247,7 @@ class Dragon(Monster):
             max_hp=350*level,
             atk=61*level,
             defens=32*level,
-            loot = {"монеты": [10, 0.7], "кости": [40, 1], "череп": [1, 0.3]})
+            loot = {"монеты": [70, 0.7], "чешуя дракона": [40, 1], "коготь дракона": [1, 0.3]})
 
 class Cultist(Monster):
     def __init__(self, level):
@@ -253,7 +259,7 @@ class Cultist(Monster):
             max_hp=78*level,
             atk=30*level,
             defens=0*level,
-            loot = {"монеты": [10, 0.7], "кости": [40, 1], "череп": [1, 0.3]})
+            loot = {"монеты": [12, 0.7], "обрывки одежды культиста": [40, 1], "шапка культиста": [1, 0.3]})
 
 class Drow(Monster):
     def __init__(self, level):
@@ -265,7 +271,7 @@ class Drow(Monster):
             max_hp=85*level,
             atk=18*level,
             defens=30*level,
-            loot = {"монеты": [10, 0.7], "кости": [40, 1], "череп": [1, 0.3]})
+            loot = {"монеты": [17, 0.7], "кости": [40, 1], "череп": [1, 0.3]})
 
 class Smoke_Mephit(Monster):
     def __init__(self, level):
@@ -277,7 +283,7 @@ class Smoke_Mephit(Monster):
             max_hp=100*level,
             atk=24*level,
             defens=18*level,
-            loot = {"монеты": [10, 0.7], "кости": [40, 1], "череп": [1, 0.3]})
+            loot = {"монеты": [23, 0.7], "мефитовый дым": [40, 1], "дух мефита": [1, 0.3]})
 
 class Babau(Monster):
     def __init__(self, level):
@@ -289,7 +295,7 @@ class Babau(Monster):
             max_hp=70*level,
             atk=20*level,
             defens=10*level,
-            loot = {"монеты": [10, 0.7], "кости": [40, 1], "череп": [1, 0.3]})
+            loot = {"монеты": [5, 0.7], "шкура": [40, 1], "череп": [1, 0.3]})
 
 class Bone_Naga_Spirit(Monster):
     def __init__(self, level):
@@ -359,7 +365,11 @@ def battle(player):
             oponent_coef = kubik()
             print(f"Кубик: {oponent_coef}")
             attack_inf = oponent.attack(player, player_defensing,oponent_coef)
-            print(f"Враг нанес вам {attack_inf[1]} урона, у вас осталось {attack_inf[0]} HP")
+            if attack_inf[2] == 1:
+
+                print(attack_inf[1])
+            else:
+                print(f"Враг нанес вам {attack_inf[1]} урона, у вас осталось {attack_inf[0]} HP")
 
         elif oponent_action == 1:
 
@@ -390,7 +400,7 @@ def battle(player):
         player_defensing = 0
         print("\nВыберите действие:")
         action = str(input("Атаковать - A\n"
-                           "Защищатся - D\n"
+                           "Парировать - D\n"
                            "Лечится - H\n"
                            "> \n"))
 
@@ -402,7 +412,7 @@ def battle(player):
 
         elif action =="D":
             player_defensing = player.defensing()
-            print(f"Вы защитились")
+            print(f"Вы парировали атаку")
 
         elif action == "H":
             player.healing()
@@ -426,7 +436,7 @@ def shoping(player,shop):
               "B - Купить\n"
               "S - продать\n"
               "Q - Вернуться\n"
-              ">"))
+              "> "))
         up_shop_select = shop_select.upper()
         if up_shop_select == "B":
             purchases_dict={}
@@ -434,22 +444,35 @@ def shoping(player,shop):
             print(f"Монеты: {player.money}")
             shop.show_showcase()
             while True:
-                purchases_select = str(input(f"Введите название или выйдете - Q (покупка завершится \n> "))
-                if purchases_select != "Q":
-                    if purchases_select in purchases_dict:
-                        purchases_dict[purchases_select] = purchases_dict[purchases_select] + 1
-                    else:
-                        purchases_dict.update({purchases_select: 1})
+                try:
+                    purchases_select, count = map(str, input(f"\nВведите название или выйдете - Q Q (покупка завершится) \n> ").split())
+                except ValueError:
+                    print("Не введено товар или количество товара, либо только одно Q")
                 else:
-                    if purchases_dict != {}:
-                        sell_data = shop.sell(player,purchases_dict)
-                        if sell_data != None:
-                            print(f"\nМонеты игрока: {sell_data[0]}, инвентарь: {sell_data[1]}")
+                    if purchases_select != "Q":
+                        if purchases_select in purchases_dict:
+                            purchases_dict[purchases_select] = purchases_dict[purchases_select] + int(count)
+                        else:
+                            purchases_dict.update({purchases_select: int(count)})
+                    else:
+                        if purchases_dict != {}:
+                            sell_data = shop.sell(player, purchases_dict)
+                            if sell_data != None:
+                                print(f"\nМонеты игрока: {sell_data[0]}, инвентарь:\n")
+                                for key, value in sell_data[1].items():
+                                    print(f"| {key.upper()} |")
+                                    for v_key, v_value in value.items():
+                                        if v_key != "type":
+                                            print(f"| {v_key} - {v_value}")
+                                        else:
+                                            pass
+                                    print("|________________________________________|")
+
+                            else:
+                                pass
                         else:
                             pass
-                    else:
-                        pass
-                    break
+                        break
         elif up_shop_select == "S":
             pass
         elif up_shop_select == "Q":
@@ -467,9 +490,10 @@ def main(start):
         main_Player = new_player_create()
         start=0
     while True:
-        main_select = str(input("\nХотите сразится, или выйти из игры \n"
-                                "A - Cражение\n"
+        main_select = str(input("\nЧто хотите сделать? \n"
+                                "A - Cразиться\n"
                                 "S - Магазин\n"
+                                "C - Пойти к костру\n"
                                 "I - Инвентарь\n"
                                 "Q - Выход\n"
                                 "> "))
@@ -481,6 +505,8 @@ def main(start):
                 battle(main_Player)
         elif up_main_select == "S":
             shoping(main_Player, shop)
+        elif up_main_select == "C":
+            main_Player.campfiring()
         elif up_main_select == "I":
             main_Player.see_inventory()
         elif up_main_select == "Q":
