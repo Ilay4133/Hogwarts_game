@@ -167,14 +167,14 @@ class Monster():
         self.defens = defens
         self.loot = loot
 
-    def attack(self, oponent, defens_bool, coef):
+    def attack(self, opponent, defens_bool, coef):
         print("Враг атакует")
         if defens_bool != 0:
-                return [round(oponent.hp, 2), "Игрок парировал атаку", 1]
+                return [round(opponent.hp, 2), "Игрок парировал атаку", 1]
         else:
             damage = self.atk*coef
-            oponent.hp = oponent.hp - damage
-            return [round(oponent.hp, 2), damage, 0]
+            opponent.hp = opponent.hp - damage
+            return [round(opponent.hp, 2), damage, 0]
 
     def healing(self):
         healing_hp = self.hp + 30
@@ -189,25 +189,25 @@ class Monster():
 
     def player_looting(self, player):
         got_loot = {}
-        moster_loot = self.loot
+        monster_loot = self.loot
         money_count = 0
-        for i in moster_loot:
+        for i in monster_loot:
             item = i
-            chanse = moster_loot[item][1]
+            chance = monster_loot[item][1]
             probil = float(random.random())
-            if moster_loot[item][0] != 1:
+            if monster_loot[item][0] != 1:
                 if item == "монеты":
-                    if probil <= chanse:
+                    if probil <= chance:
                         loot_count_coef = random.randint(1, 100)
-                        loot_count = int((moster_loot[item][0]*(loot_count_coef/100))//1)
+                        loot_count = int((monster_loot[item][0]*(loot_count_coef/100))//1)
                         player.money = player.money + loot_count
                         money_count = loot_count
                     else:
                         pass
                 else:
-                    if probil <= chanse:
+                    if probil <= chance:
                         loot_count_coef = random.randint(1, 100)
-                        loot_count = int((moster_loot[item][0]*(loot_count_coef/100))//1)
+                        loot_count = int((monster_loot[item][0]*(loot_count_coef/100))//1)
                         if loot_count !=0:
                             got_loot.update({item: loot_count})
                         else:
@@ -215,7 +215,7 @@ class Monster():
                     else:
                         pass
             else:
-                if probil <= chanse:
+                if probil <= chance:
                     loot_count = 1
                     got_loot.update({item: loot_count})
                 else:
@@ -333,7 +333,7 @@ def kubik(kubiks_edges = 25):
     return kubik_koef
 
 def new_player_create():
-    player_name = str(input("Создание игрока, ввидите имя: "))
+    player_name = str(input("Создание игрока, введите имя: "))
     choise_class = int(input("Выберите класс: \n- Воин (1)\n- Волшебник (2)\n- Монах (3)"
                              "\n- Паладин (4)\n> "))
     if choise_class == 1:
@@ -350,52 +350,48 @@ def new_player_create():
 
 def battle(player):
     player_defensing = 0
-    oponent_defensing = 0
-    oponent = all_monsters_list[random.randint(0,(len(all_monsters_list))-1)]
-    print(f"Ваш опонент: {oponent.name}")
+    opponent_defensing = 0
+    opponent = all_monsters_list[random.randint(0,(len(all_monsters_list))-1)]
+    print(f"Ваш опонент: {opponent.name}")
     time.sleep(1)
 
     while True:
 
-        oponent_defensing = 0
-        oponent_action = random.randint(0, 2)
+        opponent_defensing = 0
+        opponent_action = random.randint(0, 2)
 
 
-        if oponent_action == 0:
-            oponent_coef = kubik()
-            print(f"Кубик: {oponent_coef}")
-            attack_inf = oponent.attack(player, player_defensing,oponent_coef)
+        if opponent_action == 0:
+            opponent_coef = kubik()
+            print(f"Кубик: {opponent_coef}")
+            attack_inf = opponent.attack(player, player_defensing,opponent_coef)
             if attack_inf[2] == 1:
 
                 print(attack_inf[1])
             else:
                 print(f"Враг нанес вам {attack_inf[1]} урона, у вас осталось {attack_inf[0]} HP")
 
-        elif oponent_action == 1:
+        elif opponent_action == 1:
 
-            oponent_defensing = oponent.defensing()
+            oponent_defensing = opponent.defensing()
             print(f"Враг защитился")
 
-        elif oponent_action == 2:
-            oponent.healing()
-            print(f"Враг вылечился, HP сейчас: {oponent.hp}")
+        elif opponent_action == 2:
+            opponent.healing()
+            print(f"Враг вылечился, HP сейчас: {opponent.hp}")
 
         print("_____________________")
 
         if player.hp <= 0:
-            print(f"{oponent.name}, победил!")
+            print(f"{opponent.name}, победил!")
             print("_____________________")
             break
 
-        elif oponent.hp <= 0:
+        elif opponent.hp <= 0:
             print(f"{player.name}, победил!")
-            looting_data = oponent.player_looting(player)
+            looting_data = opponent.player_looting(player)
             print(f"{player.name} получил: {looting_data[0]}.\n Инвентарь сейчас: {looting_data[1]}, монеты: {player.money} + ({looting_data[2]}) \n_____________________")
             break
-
-
-
-        time.sleep(1)
 
         player_defensing = 0
         print("\nВыберите действие:")
@@ -407,7 +403,7 @@ def battle(player):
         if action =="A":
             player_coef = kubik()
             print(f"Кубик: {player_coef}")
-            attack_inf = player.attack(oponent, oponent_defensing,player_coef)
+            attack_inf = player.attack(opponent, opponent_defensing,player_coef)
             print(f"Вы нанесли врагу {attack_inf[1]} урона, у врага осталось {attack_inf[0]} HP")
 
         elif action =="D":
@@ -420,16 +416,16 @@ def battle(player):
 
 
         if player.hp < 0:
-            print(f"{oponent.name}, победил! \n")
+            print(f"{opponent.name}, победил! \n")
             break
 
-        elif oponent.hp < 0:
+        elif opponent.hp < 0:
             print(f"{player.name}, победил!")
-            looting_data = oponent.player_looting(player)
+            looting_data = opponent.player_looting(player)
             print(f"{player.name} получил: {looting_data[0]}.\n Инвентарь сейчас: {looting_data[1]}, монеты: {player.money} + ({looting_data[2]}) \n_____________________")
             break
 
-def shoping(player,shop):
+def shopping(player,shop):
     while True:
         shop_select = str(input("\n_____________________"
               "\nПриветствуем в магазине.\n"
@@ -504,7 +500,7 @@ def main(start):
             else:
                 battle(main_Player)
         elif up_main_select == "S":
-            shoping(main_Player, shop)
+            shopping(main_Player, shop)
         elif up_main_select == "C":
             main_Player.campfiring()
         elif up_main_select == "I":
