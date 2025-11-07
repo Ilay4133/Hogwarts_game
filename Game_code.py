@@ -1,4 +1,5 @@
 import random
+import threading
 import time
 from tqdm import tqdm
 
@@ -14,6 +15,7 @@ class Player:
         self.defens = defense
         self.inventory = {}
         self.money = money
+        self.h_timer: bool = True
 
     def attack(self, opponent, defense_bool, coef) -> list:
         if defense_bool != 0:
@@ -29,13 +31,25 @@ class Player:
             opponent.hp = opponent.hp - damage
             return [round(opponent.hp, 2), damage]
 
-    def healing(self) -> float:
-        healing_hp = self.hp + 30
-        if healing_hp > self.max_hp:
-            self.hp = self.max_hp
+    def healing(self) -> list or None:
+        healing_time = 15
+
+        def timer():
+            self.h_timer = True
+
+        if self.h_timer:
+            healing_hp = self.hp + 30
+            if healing_hp > self.max_hp:
+                self.hp = self.max_hp
+                self.h_timer = False
+            else:
+                self.hp = self.hp + 30
+                self.h_timer = False
+            thread = threading.Timer(healing_time, timer)
+            thread.start()
+            return [round(self.hp, 2), healing_time]
         else:
-            self.hp = self.hp + 30
-        return round(self.hp, 2)
+            return None
 
     @staticmethod
     def defensing() -> int:
@@ -62,6 +76,32 @@ class Player:
         print("Вы посидели у костра, ваше здоровье восстановилось")
         self.hp = self.max_hp
         return None
+
+    def open_inventory(self):
+        print("\n|________________________________________|")
+        print(f"Монеты: {self.money}")
+        print("|________________________________________|")
+        for key, value in self.inventory.items():
+            print(f"| {key.upper()} |")
+            for v_key, v_value in value.items():
+                if v_key != "type":
+                    print(f"| {v_key} - {v_value}")
+                else:
+                    pass
+            print("|________________________________________|")
+        invent_chose = str(input("Что использовать или выйти - Q\n> "))
+        chose_data = self.inventory[invent_chose]
+        if chose_data["type"][0] == "heal":
+            print("heal")
+            healing_hp = chose_data["type"][1]
+            if self.hp + healing_hp > self.max_hp:
+                self.hp = self.max_hp
+            else:
+                self.hp += healing_hp
+            print(f"Вы восстановили {healing_hp} ХП, \n"
+                  f"ХП сейчас: {self.hp}")
+
+
 
 
 class Warrior(Player):
@@ -118,11 +158,11 @@ class Paladin(Player):
 
 class Shop:
     def __init__(self):
-        self.showcase = {"зелье": {"стоимость": 20, "описание": "Восстанавливает 30 HP", 'type': 'heal_p_s'},
-                         "хлеб": {"стоимость": 2, "описание": "Восстанавливает 3 HP"},
-                         "гримуар": {"стоимость": 50, "описание": "Добавляет 20 урона на ход", 'type': 'damage_g_sr'},
+        self.showcase = {"зелье": {"стоимость": 20, "описание": "Восстанавливает 30 HP", 'type':  ['heal', 30]},
+                         "хлеб": {"стоимость": 2, "описание": "Восстанавливает 3 HP", 'type': ['heal', 3]},
+                         "гримуар": {"стоимость": 50, "описание": "Добавляет 20 урона на ход", 'type':  ['dmg_up', 20]},
                          "мифическое яблоко": {"стоимость": 999, "описание": "Увеличивает уровень игрока на 20 единиц",
-                                               'type': 'lvl_up_20'}}
+                                               'type':  ['lvl_up', 3]}}
 
     def show_showcase(self) -> None:
         print("\nВитрина: ")
@@ -216,6 +256,7 @@ class Monster:
         self.atk = atk
         self.defens = defense
         self.loot = loot
+        self.h_timer: bool = True
 
     def attack(self, opponent, defense_bool, coef) -> list:
         print("Враг атакует")
@@ -226,13 +267,25 @@ class Monster:
             opponent.hp = opponent.hp - damage
             return [round(opponent.hp, 2), damage, 0]
 
-    def healing(self) -> float:
-        healing_hp = self.hp + 30
-        if healing_hp > self.max_hp:
-            self.hp = self.max_hp
+    def healing(self) -> list or None:
+        healing_time = 25
+
+        def timer():
+            self.h_timer = True
+
+        if self.h_timer:
+            healing_hp = self.hp + 30
+            if healing_hp > self.max_hp:
+                self.hp = self.max_hp
+                self.h_timer = False
+            else:
+                self.hp = self.hp + 30
+                self.h_timer = False
+            thread = threading.Timer(15, timer)
+            thread.start()
+            return [round(self.hp, 2), healing_time]
         else:
-            self.hp = self.hp + 30
-        return round(self.hp, 2)
+            return None
 
     @staticmethod
     def defensing() -> int:
@@ -292,7 +345,7 @@ class Sceleton(Monster):
             level=level,
             name=f"Скелет ({level})",
             magical_level=level,
-            max_hp=1 * level,
+            max_hp=60 * level,
             atk=16 * level,
             defense=5 * level,
             loot={"монеты": [10, 0.7],
@@ -401,7 +454,7 @@ dragon = Dragon(1)
 # __________
 shop = Shop()
 
-all_monsters_list = [sceleton, ]
+all_monsters_list = [sceleton, cultist, babau, bone_naga_spirit, dragon,drow, smoke_mephisto]
 
 
 # cultist, babau, bone_naga_spirit, dragon,drow, smoke_mephisto
@@ -453,13 +506,16 @@ def battle(player) -> None:
                 print(f"Враг нанес вам {attack_inf[1]} урона, у вас осталось {attack_inf[0]} HP")
 
         elif opponent_action == 1:
-
             opponent_defensing = opponent.defensing()
             print(f"Враг защитился")
 
         elif opponent_action == 2:
-            opponent.healing()
-            print(f"Враг вылечился, HP сейчас: {opponent.hp}")
+            healing_data = opponent.healing()
+            if healing_data is not None:
+                print(f"Враг вылечился, HP сейчас: {healing_data[0]},"
+                      f" (задержка восстановления ХП: {healing_data[1]} сек.)\n")
+            else:
+                print("Задержка восстановления ХП")
 
         print("_____________________")
 
@@ -481,22 +537,32 @@ def battle(player) -> None:
         action = str(input("Атаковать - A\n"
                            "Парировать - D\n"
                            "Лечится - H\n"
+                           "Открыть инвентарь - I\n"
                            "> "))
         print("")
+        up_action = action.upper()
 
-        if action == "A":
+        if up_action == "A":
             player_coef = kubik()
             print(f"Кубик: {player_coef}")
             attack_inf = player.attack(opponent, opponent_defensing, player_coef)
             print(f"Вы нанесли врагу {attack_inf[1]} урона, у врага осталось {attack_inf[0]} HP")
 
-        elif action == "D":
+        elif up_action == "D":
             player_defensing = player.defensing()
             print(f"Вы парировали атаку")
 
-        elif action == "H":
-            player.healing()
-            print(f"Вы вылечились, HP сейчас: {player.hp}\n")
+        elif up_action == "H":
+            healing_data = player.healing()
+            if healing_data is not None:
+                print(f"Вы вылечились, HP сейчас: {healing_data[0]},"
+                      f" (задержка восстановления ХП: {healing_data[1]} сек.)\n")
+            else:
+                print("Задержка восстановления ХП")
+        elif up_action == "I":
+            inbentory_data = player.open_inventory()
+        else:
+            pass
 
         if player.hp < 0:
             print(f"{opponent.name}, победил! \n")
