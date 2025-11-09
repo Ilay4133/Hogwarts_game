@@ -338,10 +338,9 @@ class Monster:
 
 
 class Sceleton(Monster):
-    monster_info = "Скелет"
-
     def __init__(self, level):
         super().__init__(
+            monster_info = "Скелет",
             level=level,
             name=f"Скелет ({level})",
             magical_level=level,
