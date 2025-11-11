@@ -1,6 +1,6 @@
-from OOP_DnD_like_game.Game_functions.Battle_func import *
-from OOP_DnD_like_game.Game_functions.Shoping_func import *
-from OOP_DnD_like_game.Game_functions.New_player_create_func import *
+from Game_functions.Battle_func import *
+from Game_functions.Shoping_func import *
+from Game_functions.New_player_create_func import *
 
 
 def main(start) -> int:
