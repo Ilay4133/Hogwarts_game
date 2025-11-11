@@ -1,4 +1,4 @@
-from OOP_DnD_like_game.Classes.Monster_class import *
+from Classes.Monster_class import *
 
 
 class Drow(Monster):

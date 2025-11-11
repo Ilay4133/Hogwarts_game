@@ -1,11 +1,11 @@
-from OOP_DnD_like_game.Classes.Shop_class import *
-from OOP_DnD_like_game.Classes.Monsters_classes.Drow_class import *
-from OOP_DnD_like_game.Classes.Monsters_classes.Sceleton_class import *
-from OOP_DnD_like_game.Classes.Monsters_classes.Cultist_class import *
-from OOP_DnD_like_game.Classes.Monsters_classes.Babau_class import *
-from OOP_DnD_like_game.Classes.Monsters_classes.Bone_Naga_Spirit_class import *
-from OOP_DnD_like_game.Classes.Monsters_classes.Smoke_Mephisto_class import *
-from OOP_DnD_like_game.Classes.Monsters_classes.Dragon_class import *
+from Classes.Shop_class import *
+from Classes.Monsters_classes.Drow_class import *
+from Classes.Monsters_classes.Sceleton_class import *
+from Classes.Monsters_classes.Cultist_class import *
+from Classes.Monsters_classes.Babau_class import *
+from Classes.Monsters_classes.Bone_Naga_Spirit_class import *
+from Classes.Monsters_classes.Smoke_Mephisto_class import *
+from Classes.Monsters_classes.Dragon_class import *
 
 
 sceleton = Sceleton(1)
