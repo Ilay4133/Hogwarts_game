@@ -1,6 +1,7 @@
 from Game_functions.Battle_func import *
 from Game_functions.Shoping_func import *
 from Game_functions.New_player_create_func import *
+from Assets import *
 
 
 def main(start) -> int:
