@@ -11,6 +11,7 @@ class Player:
         self.max_hp = max_hp
         self.hp = max_hp
         self.atk = atk
+        self.min_atk = atk
         self.defens = defense
         self.inventory = {}
         self.money = money
@@ -99,3 +100,19 @@ class Player:
                 self.hp += healing_hp
             print(f"Вы восстановили {healing_hp} ХП, \n"
                   f"ХП сейчас: {self.hp}\n_____________________")
+
+        elif chose_data["type"][0] == "dmg_up":
+            print("dmg_up")
+            atk_up = chose_data["type"][1]
+            self.atk += atk_up
+            print(f"Вы увеличили атаку на {atk_up} ед на один ход, \n"
+                  f"Атака сейчас: {self.hp} (дальше последует атака)\n_____________________")
+
+        elif chose_data["type"][0] == "lvl_up":
+            print("dmg_up")
+            level_up = chose_data["type"][1]
+            self.level += level_up
+            print(f"Вы увеличили уровень на {level_up} ед, \n"
+                  f"Уровень  сейчас: {self.hp}\n_____________________")
+
+        return chose_data["type"][0]

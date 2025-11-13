@@ -1,6 +1,7 @@
-from OOP_DnD_like_game.Game_functions.Kubic_func import *
-from OOP_DnD_like_game.Assets import *
+from Game_functions.Kubic_func import *
+from Assets import *
 import time
+import random
 
 
 def battle(player) -> None:
@@ -11,7 +12,7 @@ def battle(player) -> None:
     time.sleep(1)
 
     while True:
-
+        player.atk = player.min_atk
         opponent_defensing = 0
         opponent_action = random.randint(0, 2)
 
@@ -81,6 +82,11 @@ def battle(player) -> None:
                 print("Задержка восстановления ХП")
         elif up_action == "I":
             inventory_data = player.open_inventory()
+            if inventory_data == "dmg_up":
+                player_coef = kubik()
+                print(f"Кубик: {player_coef}")
+                attack_inf = player.attack(opponent, opponent_defensing, player_coef)
+                print(f"Вы нанесли врагу {attack_inf[1]} урона (повышенный урон), у врага осталось {attack_inf[0]} HP")
         else:
             pass
 
