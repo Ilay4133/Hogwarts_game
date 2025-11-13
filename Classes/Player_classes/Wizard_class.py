@@ -1,4 +1,4 @@
-from OOP_DnD_like_game.Classes.Player_class import *
+from Classes.Player_class import *
 
 
 class Wizard(Player):

@@ -1,7 +1,7 @@
-from OOP_DnD_like_game.Classes.Player_classes.Warrior_class import *
-from OOP_DnD_like_game.Classes.Player_classes.Wizard_class import *
-from OOP_DnD_like_game.Classes.Player_classes.Monk_class import *
-from OOP_DnD_like_game.Classes.Player_classes.Paladin_class import *
+from Classes.Player_classes.Warrior_class import *
+from Classes.Player_classes.Wizard_class import *
+from Classes.Player_classes.Monk_class import *
+from Classes.Player_classes.Paladin_class import *
 
 
 def new_player_create() -> object:
