@@ -16,6 +16,8 @@ class Player:
         self.inventory = {}
         self.money = money
         self.h_timer: bool = True
+        self.exp = 0
+        self.level_up_exp = 1000+1000*(level/1000)
 
     def attack(self, opponent, defense_bool, coef) -> list:
         if defense_bool != 0:
@@ -77,7 +79,7 @@ class Player:
         self.hp = self.max_hp
         return None
 
-    def open_inventory(self):
+    def open_inventory(self) -> str:
         print("\n|________________________________________|")
         print(f"Монеты: {self.money}")
         print("|________________________________________|")
@@ -116,3 +118,7 @@ class Player:
                   f"Уровень  сейчас: {self.hp}\n_____________________")
 
         return chose_data["type"][0]
+
+    def level_up(self) -> None:
+        self.level += 1
+        return None
