@@ -99,7 +99,7 @@ def battle(player) -> None:
             looting_data = opponent.player_looting(player)
             print(
                 f"{player.name} получил: {looting_data[0]}.\n Инвентарь сейчас: {looting_data[1]}, "
-                f"монеты: {player.money} + ({looting_data[2]}) \n_____________________")
+                f"монеты: {player.money} (+ {looting_data[2]}) \n_____________________")
             break
 
     return None

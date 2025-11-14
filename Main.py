@@ -27,7 +27,7 @@ def main(start) -> int:
         elif up_main_select == "S":
             shopping(main_Player, shop)
         elif up_main_select == "C":
-            if main_Player.hp <= 0:
+            if main_Player.hp <= main_Player.max_hp:
                 main_Player.campfiring()
             else:
                 print("Ваше здоровье в порядке")
