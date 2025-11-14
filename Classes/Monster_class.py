@@ -3,7 +3,7 @@ import threading
 
 
 class Monster:
-    def __init__(self, loot, level, name, magical_level, max_hp, atk, defense):
+    def __init__(self, loot, level, name, magical_level, max_hp, atk, defense, looting_exp):
         self.level = level
         self.name = name
         self.magical_level = magical_level
@@ -13,6 +13,7 @@ class Monster:
         self.defens = defense
         self.loot = loot
         self.h_timer: bool = True
+        self.looting_exp = looting_exp
 
     def attack(self, opponent, defense_bool, coef) -> list:
         print("Враг атакует")
@@ -86,7 +87,12 @@ class Monster:
             looting_item = j
             looting_item_dic = {"количество": got_loot[looting_item]} | dict(list(self.loot[j].items())[2:4])
             player.inventory.update({looting_item: looting_item_dic})
-        return [got_loot, player.inventory, money_count]
+        if player.exp >= player.level_up_exp:
+            player.level_up
+            level_up = 1
+        else:
+            level_up = 0
+        return [got_loot, player.inventory, money_count, level_up]
 
     def level_up(self) -> None:
         self.level += 1
