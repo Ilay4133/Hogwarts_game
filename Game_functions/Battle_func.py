@@ -20,10 +20,6 @@ def battle(player) -> None:
             opponent_coef = kubik()
             print(f"Кубик: {opponent_coef}")
             attack_inf = opponent.attack(player, player_defensing, opponent_coef)
-            if looting_data[3] == 1:
-                opponent.level_up
-            else:
-                pass
             if attack_inf[2] == 1:
                 print(attack_inf[1])
             else:
@@ -50,7 +46,12 @@ def battle(player) -> None:
 
         elif opponent.hp <= 0:
             print(f"{player.name}, победил!")
+            
             looting_data = opponent.player_looting(player)
+            if looting_data[3] == 1:
+                opponent.level_up
+            else:
+                pass
             print(
                 f"{player.name} получил: {looting_data[0]}.\n Инвентарь сейчас: {looting_data[1]}, "
                 f"монеты: {player.money} (+{looting_data[2]}) \n_____________________")
@@ -110,3 +111,4 @@ def battle(player) -> None:
             break
 
     return None
+
